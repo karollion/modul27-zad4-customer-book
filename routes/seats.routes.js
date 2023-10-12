@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const db = require('./../db');
 
+
+
 // get all seats
 router.route('/seats').get((req, res) => {
   res.json(db.seats);
@@ -24,12 +26,19 @@ router.route('/seats/:id').get((req, res) => {
 	res.json(seat)
 });
 
-// post one seat to db
+// post one seat to db and veryfication if seat are taken
 router.route('/seats').post((req, res) => {
-	const id = db.seats[db.seats.length - 1].id + 1;
-	const newseat = Object.assign({ id: id }, req.body);
-	db.seats.push(newseat);
-	res.status(201).json({ message: 'OK' });
+	const { day, seat } = req.body
+	const isTaken = db.seats.some(item => (item.seat === seat && item.day === day));
+	
+	if (isTaken) {
+		res.status(409).json({ message: 'The slot is already taken...' })
+	} else {
+		const id = db.seats[db.seats.length - 1].id + 1
+		const newSeat = Object.assign({ id: id }, req.body)
+		db.seats.push(newSeat)
+		res.status(201).json({ message: 'OK' })
+	}
 });
 
 // change one seat on db
