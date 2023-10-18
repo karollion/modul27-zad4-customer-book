@@ -37,7 +37,10 @@ router.route('/seats').post((req, res) => {
 		const id = db.seats[db.seats.length - 1].id + 1
 		const newSeat = Object.assign({ id: id }, req.body)
 		db.seats.push(newSeat)
-		res.status(201).json({ message: 'OK' })
+		
+		// emit action by socket
+		req.io.emit('seatsUpdated', db.seats);
+		res.status(201).json({ message: 'OK' });
 	}
 });
 
